@@ -1,6 +1,6 @@
-###Luke E-Store
+### Luke E-Store
 
-tech stacks:
+##### Tech stacks:
 1. wordpress
 2. mysql
 
