@@ -1,41 +1,70 @@
 <?php
 /**
- * The base configuration for WordPress
+ * The base configurations of the WordPress.
  *
- * The wp-config.php creation script uses this file during the
- * installation. You don't have to use the web site, you can
- * copy this file to "wp-config.php" and fill in the values.
+ * This file has the following configurations: MySQL settings, Table Prefix,
+ * Secret Keys, WordPress Language, and ABSPATH. You can find more information
+ * by visiting {@link http://codex.wordpress.org/Editing_wp-config.php Editing
+ * wp-config.php} Codex page. You can get the MySQL settings from your web host.
  *
- * This file contains the following configurations:
- *
- * * MySQL settings
- * * Secret keys
- * * Database table prefix
- * * ABSPATH
- *
- * @link https://wordpress.org/support/article/editing-wp-config-php/
+ * This file is used by the wp-config.php creation script during the
+ * installation. You don't have to use the web site, you can just copy this file
+ * to "wp-config.php" and fill in the values.
  *
  * @package WordPress
  */
 
+// $onGae is true on production.
+if (isset($_SERVER['GAE_ENV'])) {
+    $onGae = true;
+} else {
+    $onGae = false;
+}
+
+// Cache settings
+// Disable cache for now, as this does not work on App Engine for PHP 7.2
+define('WP_CACHE', false);
+
+// Disable pseudo cron behavior
+define('DISABLE_WP_CRON', true);
+
+// Determine HTTP or HTTPS, then set WP_SITEURL and WP_HOME
+if ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+    || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) {
+    $protocol_to_use = 'https://';
+} else {
+    $protocol_to_use = 'http://';
+}
+if (isset($_SERVER['HTTP_HOST'])) {
+    define('HTTP_HOST', $_SERVER['HTTP_HOST']);
+} else {
+    define('HTTP_HOST', 'localhost');
+}
+define('WP_SITEURL', $protocol_to_use . HTTP_HOST);
+define('WP_HOME', $protocol_to_use . HTTP_HOST);
+
 // ** MySQL settings - You can get this info from your web host ** //
-/** The name of the database for WordPress */
-define( 'DB_NAME', 'wordpress');
-
-/** MySQL database username */
-define( 'DB_USER', 'wordpress');
-
-/** MySQL database password */
-define( 'DB_PASSWORD', 'wordpress');
-
-/** MySQL hostname */
-define( 'DB_HOST', 'db:3306');
+if ($onGae) {
+    /** The name of the Cloud SQL database for WordPress */
+    define('DB_NAME', 'wordpress');
+    /** Production login info */
+    define('DB_HOST', ':/cloudsql/luke-techshop:us-central1:wordpress');
+    define('DB_USER', 'root');
+    define('DB_PASSWORD', 'root');
+} else {
+    /** The name of the local database for WordPress */
+    define('DB_NAME', 'wordpress');
+    /** Local environment MySQL login info */
+    define('DB_HOST', '127.0.0.1');
+    define('DB_USER', 'root');
+    define('DB_PASSWORD', 'root');
+}
 
 /** Database Charset to use in creating database tables. */
-define( 'DB_CHARSET', 'utf8');
+define('DB_CHARSET', 'utf8');
 
 /** The Database Collate type. Don't change this if in doubt. */
-define( 'DB_COLLATE', '');
+define('DB_COLLATE', '');
 
 /**#@+
  * Authentication Unique Keys and Salts.
@@ -46,24 +75,33 @@ define( 'DB_COLLATE', '');
  *
  * @since 2.6.0
  */
-define( 'AUTH_KEY',         '81c3084e1f56058d41154aa412b196b414a0ee8e');
-define( 'SECURE_AUTH_KEY',  'a18daf013cae2aaea38e55d90e084e3381f760a5');
-define( 'LOGGED_IN_KEY',    '75ebd5fb60a7f14d071fdab8ff1f93332988c239');
-define( 'NONCE_KEY',        'dddfbb170cd5837c056abf2e11d23fd8d900a593');
-define( 'AUTH_SALT',        'b881b0f0b0434a0f39b5a91dfdc09be511d00c82');
-define( 'SECURE_AUTH_SALT', 'bb2f149fd01c0aa500258bd12867e7e863da9de2');
-define( 'LOGGED_IN_SALT',   'd39135508d64ccd99703e53bdd87ede4deadfd24');
-define( 'NONCE_SALT',       '5fbf1a05db8c0cadac42391cc7e66b7d28fd565c');
+define('AUTH_KEY',         'DCpfk2jdiiIjBYMREaEiKq0WRkQRzJY2scSNxDU7H4EZFpncpRXnheGo3wSsL2Xz+pVj+2v7FyE6nlMr');
+define('SECURE_AUTH_KEY',  'TNiBXdcv1myjBLWg55yqZwZKLmj3pRRfFXkGDqbqLvj3P3EYbGl2RLp2HGrmF3239pVkEjLSJJbUqbiN');
+define('LOGGED_IN_KEY',    'jRsEScvpXyEZDktYLeza5VqvHBPe7iOD6rpgLq+MSJUdsVpo2BK8zagqvFPYYkZ7Fnb0aPH74EZ4On8m');
+define('NONCE_KEY',        'f/S+Le1ggjpdcYRxPKIZoduys7YBSQ7hEEStzTBCxdxJoxZYCf/db6E+5BqquDdcmPPhHQmjc6FB4aCR');
+define('AUTH_SALT',        'KeXI2+15yMQ8ebvyPQPo6rBqh+wRkEoaTs9uA1T8sDYBFw+QtZLlvSc4n/YI2/c4sLwohfkFff+TNEVj');
+define('SECURE_AUTH_SALT', 'mFeo+ykxxmPqqpy18VhV8UfBcO8zRXgRehVUXKtMBpvWhB6UgkaxdijxNFrzq/3KVkKvKl0AYZT26Gq9');
+define('LOGGED_IN_SALT',   '36VUkSSzBG9iT3Lhfk/Mboe2+isi3rzJUyZTaHEGdpC1KLT2RZehNY5UyXFRvY4UlpJlBi1f1qzGxEPt');
+define('NONCE_SALT',       '8etttqpiuWCX98ZOKEFAPN/7Ij/XyHFTvva2/uyZfk8VS9H9UiWMWDAR1T/ikbkl09VswjJ520x3nZp6');
 
 /**#@-*/
-
 /**
  * WordPress Database Table prefix.
  *
- * You can have multiple installations in one database if you give each
- * a unique prefix. Only numbers, letters, and underscores please!
+ * You can have multiple installations in one database if you give each a unique
+ * prefix. Only numbers, letters, and underscores please!
  */
-$table_prefix = 'wp_';
+$table_prefix  = 'wp_';
+
+/**
+ * WordPress Localized Language, defaults to English.
+ *
+ * Change this to localize WordPress. A corresponding MO file for the chosen
+ * language must be installed to wp-content/languages. For example, install
+ * de_DE.mo to wp-content/languages and set WPLANG to 'de_DE' to enable German
+ * language support.
+ */
+define('WPLANG', '');
 
 /**
  * For developers: WordPress debugging mode.
@@ -71,26 +109,14 @@ $table_prefix = 'wp_';
  * Change this to true to enable the display of notices during development.
  * It is strongly recommended that plugin and theme developers use WP_DEBUG
  * in their development environments.
- *
- * For information on other constants that can be used for debugging,
- * visit the documentation.
- *
- * @link https://wordpress.org/support/article/debugging-in-wordpress/
  */
-define( 'WP_DEBUG', false );
+define('WP_DEBUG', !$onGae);
 
-// If we're behind a proxy server and using HTTPS, we need to alert WordPress of that fact
-// see also http://codex.wordpress.org/Administration_Over_SSL#Using_a_Reverse_Proxy
-if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
-	$_SERVER['HTTPS'] = 'on';
-}
-
-/* That's all, stop editing! Happy publishing. */
-
+/* That's all, stop editing! Happy blogging. */
 /** Absolute path to the WordPress directory. */
-if ( ! defined( 'ABSPATH' ) ) {
-	define( 'ABSPATH', __DIR__ . '/' );
+if (!defined('ABSPATH')) {
+    define('ABSPATH', dirname(__FILE__) . '/wordpress/');
 }
 
 /** Sets up WordPress vars and included files. */
-require_once ABSPATH . 'wp-settings.php';
+require_once(ABSPATH . 'wp-settings.php');
